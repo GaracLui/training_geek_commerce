@@ -15,7 +15,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY requirements.txt .
 RUN uv pip install -r requirements.txt --system
 
-COPY src/ .
+COPY geek_commerce/ .
 
 EXPOSE 8000
 

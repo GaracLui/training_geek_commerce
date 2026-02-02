@@ -1,4 +1,4 @@
-servicies:
+services:
   web:
     build: .
     container_name: geek_commerce_web
