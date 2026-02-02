@@ -1,0 +1,8 @@
+servicies:
+  web:
+    build: .
+    container_name: geek_commerce_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./geek_commerce:/app
