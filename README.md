@@ -20,21 +20,32 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
 ## 🛠️ Tecnologías Utilizadas
 
 * **Backend:** Python, Django Framework.
-* **Base de Datos:** SQLite (Entorno de desarrollo) / PostgreSQL (Producción).
+* **Base de Datos:** PostgreSQL (Producción).
 * **Frontend:** Django Templates, Tailwind CSS.
 * **Control de Versiones:** Git & GitHub.
 
 ## 💻 Instalación y Puesta en Marcha
 
+* **crear virtual environment:** navega al directorio del proyecto en Git Bash. Después corre el siguiente comando:
+
+   ```
+   python -m venv venv
+   ```
+
+* **activar virtual environment:** corre el siguiente comando para activar el environment:
+   ```
+   source venv/Scripts/activate
+   ```
+
+* **instalar packages:**
+   ```
+   pip install -r requirements.txt
+   ```
 
 
 ## 📷 Capturas de Pantalla
 
-   Vista del Home
 
-   Vista de Detalle de Producto
-
-   Carrito de Compras
 
 ## ⚠️ Disclaimer
 
