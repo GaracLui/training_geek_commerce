@@ -59,12 +59,27 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
 
 ### Docker
 
-* crea (o reconstruye) las imágenes para todos los servicios definidos en su archivo docker-compose.yaml y luego crea, inicia y adjunta los contenedores para esos servicios.
+* crea (o reconstruye) las imágenes para todos los servicios definidos en su archivo `docker-compose.yaml` y luego crea, inicia y adjunta los contenedores para esos servicios.
   ```
   docker-compose up --build
   ```
+* realiza una migración basada en los modelos de Django (estando activo Docker).
+  ```
+  docker exec geek_commerce_web python manage.py makemigrations
+  ```
+* aplica las migraciones.
+  ```
+  docker exec geek_commerce_web python manage.py migrate
+  ```
 
-
+* comprueba de que se a creado correctamente la base de datos.
+  ```
+  docker exec -ti postgres_db psql -U catanist -d dev_database
+  ```
+  y ejecuta el comando para mostrar las entidades.
+  ```
+  \dt
+  ```
 ## 📷 Capturas de Pantalla
 
 
