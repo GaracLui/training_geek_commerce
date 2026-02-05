@@ -26,6 +26,8 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
 
 ## 💻 Instalación y Puesta en Marcha
 
+### Virtual Environment y Packages
+
 * **crear virtual environment:** navega al directorio del proyecto en Git Bash. Después corre el siguiente comando:
 
    ```
@@ -41,6 +43,26 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
    ```
    pip install -r requirements.txt
    ```
+### .env
+
+* crea un archivo `.env` conteniedo las siguientes variables (puedes alterar los valores).
+  ```
+  POSTGRES_DB=dev_database
+  POSTGRES_USER=catanist
+  POSTGRES_PASSWORD=catan_champion
+  DB_HOST=db
+  DB_PORT=5432
+
+  SECRET_KEY='django-insecure-@5^@yns$uk#=($wel3r4w-*d0+rj&j207*rzo=$tu9*uv(10m)'
+  DEBUG=True
+  ```
+
+### Docker
+
+* crea (o reconstruye) las imágenes para todos los servicios definidos en su archivo docker-compose.yaml y luego crea, inicia y adjunta los contenedores para esos servicios.
+  ```
+  docker-compose up --build
+  ```
 
 
 ## 📷 Capturas de Pantalla
