@@ -1,6 +1,6 @@
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En_Desarrollo-yellow)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
-![Django](https://img.shields.io/badge/Django-4.x-green)
+![Django](https://img.shields.io/badge/Django-6.x-green)
 
 ## 📋 Descripción
 
@@ -20,21 +20,69 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
 ## 🛠️ Tecnologías Utilizadas
 
 * **Backend:** Python, Django Framework.
-* **Base de Datos:** SQLite (Entorno de desarrollo) / PostgreSQL (Producción).
+* **Base de Datos:** PostgreSQL (Producción).
 * **Frontend:** Django Templates, Tailwind CSS.
 * **Control de Versiones:** Git & GitHub.
 
 ## 💻 Instalación y Puesta en Marcha
 
+### Virtual Environment y Packages
 
+* **crear virtual environment:** navega al directorio del proyecto en Git Bash. Después corre el siguiente comando:
 
+   ```
+   python -m venv venv
+   ```
+
+* **activar virtual environment:** corre el siguiente comando para activar el environment:
+   ```
+   source venv/Scripts/activate
+   ```
+
+* **instalar packages:**
+   ```
+   pip install -r requirements.txt
+   ```
+### .env
+
+* crea un archivo `.env` conteniedo las siguientes variables (puedes alterar los valores).
+  ```
+  POSTGRES_DB=dev_database
+  POSTGRES_USER=catanist
+  POSTGRES_PASSWORD=catan_champion
+  DB_HOST=db
+  DB_PORT=5432
+
+  SECRET_KEY='django-insecure-@5^@yns$uk#=($wel3r4w-*d0+rj&j207*rzo=$tu9*uv(10m)'
+  DEBUG=True
+  ```
+
+### Docker
+
+* crea (o reconstruye) las imágenes para todos los servicios definidos en su archivo `docker-compose.yaml` y luego crea, inicia y adjunta los contenedores para esos servicios.
+  ```
+  docker-compose up --build
+  ```
+* realiza una migración basada en los modelos de Django (estando activo Docker).
+  ```
+  docker exec geek_commerce_web python manage.py makemigrations
+  ```
+* aplica las migraciones.
+  ```
+  docker exec geek_commerce_web python manage.py migrate
+  ```
+
+* comprueba de que se a creado correctamente la base de datos.
+  ```
+  docker exec -ti postgres_db psql -U catanist -d dev_database
+  ```
+  y ejecuta el comando para mostrar las entidades.
+  ```
+  \dt
+  ```
 ## 📷 Capturas de Pantalla
 
-   Vista del Home
 
-   Vista de Detalle de Producto
-
-   Carrito de Compras
 
 ## ⚠️ Disclaimer
 
