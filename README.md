@@ -1,4 +1,3 @@
-![Untitled Diagram_2026-02-12T23_08_09 457Z](https://github.com/user-attachments/assets/fad743d9-6076-4dde-bde2-fd5a6f2af692)
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En_Desarrollo-yellow)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Django](https://img.shields.io/badge/Django-6.x-green)
