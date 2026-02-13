@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 # Create your models here.
-
 class Category(models.Model):
     '''
     Modelo para categorías de productos. Permite subcategorías mediante la relación self-referencial.
@@ -21,7 +20,6 @@ class Category(models.Model):
     '''
     name = models.CharField(max_length=100, verbose_name="Nombre")
     slug = models.SlugField(unique=True, blank=True)
-    # Permite subcategorías
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL, verbose_name="Categoría Padre")
 
     class Meta:
@@ -77,11 +75,8 @@ class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre")
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(verbose_name="Descripción")
-
     brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
-
     base_specs = models.JSONField(default=dict, blank=True, null=True, verbose_name="Especificaciones Base")
-
     is_active = models.BooleanField(default=True, verbose_name="¿Activo?")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado el")
@@ -106,8 +101,6 @@ class Product(models.Model):
         return self.name
 
 
-# VARIANTES (Inventario Real)
-# Esto soluciona el problema de las remeras (Talle/Color)
 class Product_Variant(models.Model):
     '''
     Modelo para variantes de productos. Cada variante representa una combinación específica de atributos (ej: color, talla) y tiene su propio SKU e inventario.
@@ -129,21 +122,15 @@ class Product_Variant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE, verbose_name="Producto")
     name = models.CharField(max_length=200, verbose_name="Nombre de la Variante")
     sku = models.CharField(max_length=100, unique=True, verbose_name="SKU (Código único de inventario)")
-
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Base")
-    
     attributes = models.JSONField(default=dict, blank=True, null=True, verbose_name="Atributos Específicos (ej: color, talla)")
-
     images = models.JSONField(default=list, blank=True, null=True, verbose_name="URLs de Imágenes")
-
     is_master = models.BooleanField(default=False, verbose_name="¿Es la Variante del producto Principal?")
-
     weight_g = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Peso en gramos")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado el")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Actualizado el")
     
-
     class Meta:
         ordering = ['name']
         indexes = [
@@ -154,7 +141,6 @@ class Product_Variant(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.sku:
-            # Generar un SKU único basado en el ID del producto y un contador
             base_sku = f"{self.product.id}"
             existing_variants = Product_Variant.objects.filter(product=self.product).count()
             self.sku = f"{base_sku}-{existing_variants + 1}"
