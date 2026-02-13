@@ -8,15 +8,22 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
 
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'base_price', 'is_active', 'created_at')
-    list_filter = ('category', 'is_active')
+    list_display = ('name', 'category', 'brand', 'is_active', 'created_at')
+    list_filter = ('category', 'brand', 'is_active')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
 
-@admin.register(ProductVariant)
-class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product', 'sku', 'price_adjustment', 'stock_quantity')
-    list_filter = ('product',)
+@admin.register(Product_Variant)
+class Product_VariantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'product', 'sku', 'price', 'is_master')
+    list_filter = ('product', 'is_master')
     search_fields = ('name', 'sku')
+    prepopulated_fields = {'sku': ('product', 'name')}
