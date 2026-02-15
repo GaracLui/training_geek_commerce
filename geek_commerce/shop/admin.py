@@ -2,6 +2,12 @@ from django.contrib import admin
 from .models import Category, Brand, Product, Product_Variant
 
 # Register your models here.
+# --- CONFIGURACIÓN DE INLINES (Tablas dentro de otras tablas) ---
+
+class Product_VariantInline(admin.TabularInline):
+    model = Product_Variant
+    extra = 1  # Muestra 1 fila vacía para agregar variantes rápido
+    show_change_link = True # Permite ir a la edición completa de la variante
 
 # --- CONFIGURACIÓN DE LOS PANELES PRINCIPALES ---
 
@@ -34,10 +40,3 @@ class Product_VariantAdmin(admin.ModelAdmin):
     search_fields = ('name', 'sku')
     prepopulated_fields = {'sku': ('product', 'name')}
 
-
-# --- CONFIGURACIÓN DE INLINES (Tablas dentro de otras tablas) ---
-
-class Product_VariantInline(admin.TabularInline):
-    model = Product_Variant
-    extra = 1  # Muestra 1 fila vacía para agregar variantes rápido
-    show_change_link = True # Permite ir a la edición completa de la variante
