@@ -71,11 +71,25 @@ class Brand(models.Model):
 
 # PRODUCTOS (padre)
 class Product(models.Model):
+    '''
+    Modelo para productos. Cada producto puede tener múltiples variantes (Product_Variant) que representan diferentes versiones del mismo producto (ej: diferentes colores, tallas, etc.).
+        - category: Relación con el modelo Category para clasificar el producto.
+        - name: Nombre del producto.
+        - slug: Slug único para URLs amigables.
+        - description: Descripción detallada del producto.
+        - base_specs: Campo JSON para almacenar especificaciones base del producto (ej: material, dimensiones).
+        - is_active: Indica si el producto está activo y disponible para la venta.
+        - Meta:
+            - ordering: Ordena por nombre al recuperar productos.
+            - indexes: Índices en los campos 'name', 'category' y 'created_at' para búsquedas rápidas.
+            - verbose_name_plural: Nombre plural para la administración de Django.
+        - save: Sobrescribe el método save para generar automáticamente el slug a partir del nombre si no se proporciona.
+        - __str__: Devuelve el nombre del producto como representación de cadena.
+    '''
     category = models.ForeignKey(Category, related_name='products', on_delete=models.PROTECT, verbose_name="Categoría")
     name = models.CharField(max_length=255, verbose_name="Nombre")
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(verbose_name="Descripción")
-    brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
     base_specs = models.JSONField(default=dict, blank=True, null=True, verbose_name="Especificaciones Base")
     is_active = models.BooleanField(default=True, verbose_name="¿Activo?")
 
@@ -87,7 +101,6 @@ class Product(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['category']),
-            models.Index(fields=['brand']),
             models.Index(fields=['created_at']),
         ]
         verbose_name_plural = "Productos"
@@ -103,30 +116,32 @@ class Product(models.Model):
 
 class Product_Variant(models.Model):
     '''
-    Modelo para variantes de productos. Cada variante representa una combinación específica de atributos (ej: color, talla) y tiene su propio SKU e inventario.
-        - product: Relación con el producto padre.
-        - name: Nombre de la variante (ej: "Remera Roja - Talle M").
-        - sku: Código único de inventario para esta variante.
-        - price: Precio específico de esta variante.
-        - attributes: JSON para almacenar atributos específicos (ej: color, talla).
-        - images: JSON para almacenar URLs de imágenes específicas de esta variante.
-        - is_master: Indica si esta variante es la principal del producto (útil para mostrar en listados).
-        - weight_g: Peso en gramos, útil para cálculos de envío.
+    Modelo para variantes de productos. Cada variante representa una versión específica de un producto, con atributos únicos como color, talla, etc.
+        - product: Relación con el modelo Product (producto padre).
+        - name: Nombre de la variante (ej: "Rojo - Talla M").
+        - sku: Código único de inventario para la variante.
+        - brand: Relación opcional con el modelo Brand.
+        - attributes: Campo JSON para almacenar atributos específicos de la variante (ej: color, talla).
+        - images: Campo JSON para almacenar URLs de imágenes específicas de la variante.
+        - weight_g: Peso en gramos de la variante (opcional).
+        - price: Precio base de la variante.
+        - is_master: Indica si esta variante es la principal del producto (opcional).
         - Meta:
             - ordering: Ordena por nombre al recuperar variantes.
-            - indexes: Índices en los campos 'name' y 'sku' para búsquedas rápidas.
+            - indexes: Índices en los campos 'name', 'sku', 'product' y 'brand' para búsquedas rápidas.
             - verbose_name_plural: Nombre plural para la administración de Django.
-        - save: Sobrescribe el método save para generar automáticamente un SKU único si no se proporciona.
-        - __str__: Devuelve una representación legible que combina el nombre del producto y el nombre de la variante.    
+        - save: Sobrescribe el método save para generar automáticamente el SKU si no se proporciona, basado en el ID del producto y el número de variantes existentes.
+        - __str__: Devuelve una representación de cadena que combina el nombre del producto y el nombre de la variante.    
     '''
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE, verbose_name="Producto")
     name = models.CharField(max_length=200, verbose_name="Nombre de la Variante")
     sku = models.CharField(max_length=100, unique=True, verbose_name="SKU (Código único de inventario)")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Base")
+    brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
     attributes = models.JSONField(default=dict, blank=True, null=True, verbose_name="Atributos Específicos (ej: color, talla)")
     images = models.JSONField(default=list, blank=True, null=True, verbose_name="URLs de Imágenes")
-    is_master = models.BooleanField(default=False, verbose_name="¿Es la Variante del producto Principal?")
     weight_g = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Peso en gramos")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Base")
+    is_master = models.BooleanField(default=False, verbose_name="¿Es la Variante del producto Principal?")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado el")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Actualizado el")
@@ -136,6 +151,8 @@ class Product_Variant(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['sku']),
+            models.Index(fields=['product']),
+            models.Index(fields=['brand']),
         ]
         verbose_name_plural = "Variantes de Producto"
 
