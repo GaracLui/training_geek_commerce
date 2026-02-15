@@ -50,40 +50,52 @@ El proyecto forma parte de mi portafolio personal y busca demostrar la implement
 ### .env
 
 * crea un archivo `.env` conteniedo las siguientes variables (puedes alterar los valores).
-  ```
-  POSTGRES_DB=dev_database
-  POSTGRES_USER=catanist
-  POSTGRES_PASSWORD=catan_champion
-  DB_HOST=db
-  DB_PORT=5432
+    ```
+    POSTGRES_DB=dev_database
+    POSTGRES_USER=catanist
+    POSTGRES_PASSWORD=catan_champion
+    DB_HOST=db
+    DB_PORT=5432
 
-  SECRET_KEY='django-insecure-@5^@yns$uk#=($wel3r4w-*d0+rj&j207*rzo=$tu9*uv(10m)'
-  DEBUG=True
-  ```
+    SECRET_KEY='django-insecure-@5^@yns$uk#=($wel3r4w-*d0+rj&j207*rzo=$tu9*uv(10m)'
+    DEBUG=True
+    ```
 
 ### Docker
 
 * crea (o reconstruye) las imágenes para todos los servicios definidos en su archivo `docker-compose.yaml` y luego crea, inicia y adjunta los contenedores para esos servicios.
-  ```
-  docker-compose up --build
-  ```
+    ```
+    docker-compose up --build
+    ```
 * realiza una migración basada en los modelos de Django (estando activo Docker).
-  ```
-  docker exec geek_commerce_web python manage.py makemigrations
-  ```
+    ```
+    docker exec geek_commerce_web python manage.py makemigrations
+    ```
 * aplica las migraciones.
-  ```
-  docker exec geek_commerce_web python manage.py migrate
-  ```
+    ```
+    docker exec geek_commerce_web python manage.py migrate
+    ```
 
 * comprueba de que se a creado correctamente la base de datos.
-  ```
-  docker exec -ti postgres_db psql -U catanist -d dev_database
-  ```
+    ```
+    docker exec -ti postgres_db psql -U catanist -d dev_database
+    ```
   y ejecuta el comando para mostrar las entidades.
-  ```
-  \dt
-  ```
+    ```
+    \dt
+    ```
+
+### Admin 
+* Crea un `superuser` dentro de la carpeta `geek_commerce` (`cd geek_commerce`)
+    ```
+    docker compose exec web python manage.py createsuperuser
+
+    ```
+    ```
+
+    ```
+
+
 ## 📷 Capturas de Pantalla
 
 
