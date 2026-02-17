@@ -7,3 +7,5 @@ db.sqlite3
 /env
 .env
 .DS_Store
+
+geek_commerce/media/
