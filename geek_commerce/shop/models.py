@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -72,7 +74,7 @@ class Brand(models.Model):
 # PRODUCTOS (padre)
 class Product(models.Model):
     '''
-    Modelo para productos. Cada producto puede tener múltiples variantes (Product_Variant) que representan diferentes versiones del mismo producto (ej: diferentes colores, tallas, etc.).
+    Modelo para productos. Cada producto puede tener múltiples variantes (ProductVariant) que representan diferentes versiones del mismo producto (ej: diferentes colores, tallas, etc.).
         - category: Relación con el modelo Category para clasificar el producto.
         - name: Nombre del producto.
         - slug: Slug único para URLs amigables.
@@ -114,31 +116,33 @@ class Product(models.Model):
         return self.name
 
 
-class Product_Variant(models.Model):
+class ProductVariant(models.Model):
     '''
-    Modelo para variantes de productos. Cada variante representa una versión específica de un producto, con atributos únicos como color, talla, etc.
+    Modelo para variantes de productos. Cada variante representa una versión específica de un producto (ej: un producto "Camiseta" puede tener variantes "Camiseta Roja - Talla M", "Camiseta Azul - Talla L", etc.).
         - product: Relación con el modelo Product (producto padre).
-        - name: Nombre de la variante (ej: "Rojo - Talla M").
-        - sku: Código único de inventario para la variante.
-        - brand: Relación opcional con el modelo Brand.
+        - name: Nombre de la variante (ej: "Roja - Talla M").
+        - slug: Slug único para URLs amigables.
+        - sku: Código único de inventario generado automáticamente.
+        - brand: Relación opcional con el modelo Brand para asociar una marca a la variante.
+        - description: Descripción detallada de la variante.
         - attributes: Campo JSON para almacenar atributos específicos de la variante (ej: color, talla).
-        - images: Campo JSON para almacenar URLs de imágenes específicas de la variante.
-        - weight_g: Peso en gramos de la variante (opcional).
+        - weight_g: Peso de la variante en gramos.
         - price: Precio base de la variante.
-        - is_master: Indica si esta variante es la principal del producto (opcional).
+        - is_master: Indica si esta variante es la principal del producto (la que se muestra por defecto).
         - Meta:
             - ordering: Ordena por nombre al recuperar variantes.
-            - indexes: Índices en los campos 'name', 'sku', 'product' y 'brand' para búsquedas rápidas.
+            - indexes: Índices en los campos 'name', 'slug', 'sku', 'product', 'brand' y 'created_at' para búsquedas rápidas.
             - verbose_name_plural: Nombre plural para la administración de Django.
-        - save: Sobrescribe el método save para generar automáticamente el SKU si no se proporciona, basado en el ID del producto y el número de variantes existentes.
-        - __str__: Devuelve una representación de cadena que combina el nombre del producto y el nombre de la variante.    
+        - save: Sobrescribe el método save para generar automáticamente el slug a partir del nombre si no se proporciona.
+        - __str__: Devuelve una representación de cadena que indica el nombre del producto y el nombre de la variante.
     '''
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE, verbose_name="Producto")
     name = models.CharField(max_length=200, verbose_name="Nombre de la Variante")
-    sku = models.CharField(max_length=100, unique=True, verbose_name="SKU (Código único de inventario)")
+    slug = models.SlugField(unique=True, blank=True)
+    sku = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name="SKU (Código único de inventario)")
     brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
+    description = models.TextField(verbose_name="Descripción de la Variante", blank=True)
     attributes = models.JSONField(default=dict, blank=True, null=True, verbose_name="Atributos Específicos (ej: color, talla)")
-    images = models.JSONField(default=list, blank=True, null=True, verbose_name="URLs de Imágenes")
     weight_g = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Peso en gramos")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Base")
     is_master = models.BooleanField(default=False, verbose_name="¿Es la Variante del producto Principal?")
@@ -153,17 +157,48 @@ class Product_Variant(models.Model):
             models.Index(fields=['sku']),
             models.Index(fields=['product']),
             models.Index(fields=['brand']),
+            models.Index(fields=['created_at']),
         ]
         verbose_name_plural = "Variantes de Producto"
 
     def save(self, *args, **kwargs):
-        if not self.sku:
-            base_sku = f"{self.product.id}"
-            existing_variants = Product_Variant.objects.filter(product=self.product).count()
-            self.sku = f"{base_sku}-{existing_variants + 1}"
+        if not self.slug:
+            self.slug = slugify(f"{self.product.name} {self.name}")
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
 
+class ProductImage(models.Model):
+    '''
+    Modelo para imágenes de variantes de productos. Cada imagen está asociada a una variante específica.
+        - variant: Relación con el modelo ProductVariant (variante padre).
+        - image: Campo ImageField para almacenar la imagen de la variante.
+        - alt_text: Texto alternativo para la imagen, útil para SEO y accesibilidad.
+        - is_main: Indica si esta imagen es la principal de la variante.
+        - Meta:
+            - verbose_name_plural: Nombre plural para la administración de Django.
+        - __str__: Devuelve una representación de cadena que indica el ID de la imagen y el SKU de la variante asociada.    
+    '''
+    variant = models.ForeignKey(
+        ProductVariant, 
+        on_delete=models.CASCADE, 
+        related_name='images', # Importante para acceder desde la variante: variant.images.all()
+        verbose_name="Variante"
+    )
+    image = models.ImageField(
+        upload_to='products/variants/' + self.variant.slug + '/', # Carpeta donde se guardarán
+        verbose_name="Imagen"
+    )
+    alt_text = models.CharField(max_length=255, blank=True, verbose_name="Texto Alternativo (SEO)")
+    is_main = models.BooleanField(default=False, verbose_name="¿Es la principal?")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "Imagen de Producto"
+        verbose_name_plural = "Imágenes de Productos"
+    
+    def __str__(self):
+        return f"Imagen {self.id} de {self.variant.sku}"
