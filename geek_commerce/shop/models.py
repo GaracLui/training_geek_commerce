@@ -1,4 +1,5 @@
 import uuid
+import os
 
 from django.db import models
 from django.conf import settings
@@ -139,7 +140,7 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE, verbose_name="Producto")
     name = models.CharField(max_length=200, verbose_name="Nombre de la Variante")
     slug = models.SlugField(unique=True, blank=True)
-    sku = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name="SKU (Código único de inventario)")
+    sku = models.UUIDField(unique=True, editable=False, default=uuid.uuid7, verbose_name="SKU (Código único de inventario)")
     brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
     description = models.TextField(verbose_name="Descripción de la Variante", blank=True)
     attributes = models.JSONField(default=dict, blank=True, null=True, verbose_name="Atributos Específicos (ej: color, talla)")
@@ -163,22 +164,41 @@ class ProductVariant(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(f"{self.product.name} {self.name}")
+            self.slug = slugify(f"{self.product.slug} {self.name}")
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
 
+
+
+# FUNCIÓN DE UTILIDAD 
+def get_upload_path(instance, filename):
+    '''
+    Función para generar una ruta de carga personalizada para las imágenes de las variantes de productos.
+    La ruta se construye de la siguiente manera:
+        products/variants/<slug-de-la-variante>/<nombre-generado-único>.<extensión>
+    Esto ayuda a mantener las imágenes organizadas por variante y evita conflictos de nombres.
+    '''
+    # Obtenemos la extensión del archivo original (ej: .webp, .png)
+    ext = filename.split('.')[-1]
+    
+    # Construimos un nombre limpio usando el Slug de la variante
+    # Esto ayuda al SEO y mantiene el orden.
+    base_name = instance.variant.slug
+
+    # Generamos un código único corto 
+    unique_id = uuid.uuid7().hex[:10]
+    
+    # Construimos el nombre final
+    new_filename = f"{base_name}_{unique_id}.{ext}"
+    # Retornamos la ruta completa:
+    # Ej: products/variants/remera-roja-l/REM-RED-L.webp
+    return os.path.join('products', instance.variant.product.slug, 'variants', instance.variant.slug, new_filename)
+
+
 class ProductImage(models.Model):
     '''
-    Modelo para imágenes de variantes de productos. Cada imagen está asociada a una variante específica.
-        - variant: Relación con el modelo ProductVariant (variante padre).
-        - image: Campo ImageField para almacenar la imagen de la variante.
-        - alt_text: Texto alternativo para la imagen, útil para SEO y accesibilidad.
-        - is_main: Indica si esta imagen es la principal de la variante.
-        - Meta:
-            - verbose_name_plural: Nombre plural para la administración de Django.
-        - __str__: Devuelve una representación de cadena que indica el ID de la imagen y el SKU de la variante asociada.    
     '''
     variant = models.ForeignKey(
         ProductVariant, 
@@ -187,7 +207,7 @@ class ProductImage(models.Model):
         verbose_name="Variante"
     )
     image = models.ImageField(
-        upload_to='products/variants/' + self.variant.slug + '/', # Carpeta donde se guardarán
+        upload_to=get_upload_path, # Carpeta donde se guardarán
         verbose_name="Imagen"
     )
     alt_text = models.CharField(max_length=255, blank=True, verbose_name="Texto Alternativo (SEO)")
