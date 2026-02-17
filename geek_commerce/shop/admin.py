@@ -54,7 +54,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
     list_display = ('name', 'product', 'sku', 'brand','price', 'is_master')
     list_filter = ('product', 'is_master', 'brand', 'created_at')
     search_fields = ('name', 'description')
-    prepopulated_fields = {'slug': ('product', 'name')}
+    prepopulated_fields = {'slug': ('product__slug', 'name')}
 
     formfield_overrides = {
         JSONField: {'widget': JSONEditorWidget},
