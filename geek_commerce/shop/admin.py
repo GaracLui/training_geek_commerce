@@ -44,6 +44,9 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
 
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditorWidget},
+    }
     inlines = [ProductVariantInline] # Aquí conectamos las variantes al producto
 
 @admin.register(ProductVariant)
