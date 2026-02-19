@@ -21,7 +21,7 @@ class Category(models.Model):
         - __str__: Devuelve el nombre de la categoría como representación de cadena.
 
     '''
-    name = models.CharField(max_length=100, verbose_name="Nombre")
+    name = models.CharField(max_length=200, verbose_name="Nombre")
     slug = models.SlugField(unique=True, blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL, verbose_name="Categoría Padre")
 
@@ -53,7 +53,7 @@ class Brand(models.Model):
         - save: Sobrescribe el método save para generar automáticamente el slug a partir del nombre si no se proporciona.
         - __str__: Devuelve el nombre de la marca como representación de cadena.
     '''
-    name = models.CharField(max_length=100, verbose_name="Nombre de la Marca")
+    name = models.CharField(max_length=200, verbose_name="Nombre de la Marca")
     slug = models.SlugField(unique=True, blank=True)
 
     class Meta:
@@ -90,7 +90,7 @@ class Product(models.Model):
         - __str__: Devuelve el nombre del producto como representación de cadena.
     '''
     category = models.ForeignKey(Category, related_name='products', on_delete=models.PROTECT, verbose_name="Categoría")
-    name = models.CharField(max_length=255, verbose_name="Nombre")
+    name = models.CharField(max_length=300, verbose_name="Nombre")
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(verbose_name="Descripción")
     base_specs = models.JSONField(default=dict, blank=True, null=True, verbose_name="Especificaciones Base")
@@ -138,7 +138,7 @@ class ProductVariant(models.Model):
         - __str__: Devuelve una representación de cadena que indica el nombre del producto y el nombre de la variante.
     '''
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE, verbose_name="Producto")
-    name = models.CharField(max_length=200, verbose_name="Nombre de la Variante")
+    name = models.CharField(max_length=300, verbose_name="Nombre de la Variante")
     slug = models.SlugField(unique=True, blank=True)
     sku = models.UUIDField(unique=True, editable=False, default=uuid.uuid7, verbose_name="SKU (Código único de inventario)")
     brand = models.ForeignKey(Brand, related_name='products', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Marca")
@@ -210,7 +210,7 @@ class ProductImage(models.Model):
         upload_to=get_upload_path, # Carpeta donde se guardarán
         verbose_name="Imagen"
     )
-    alt_text = models.CharField(max_length=255, blank=True, verbose_name="Texto Alternativo (SEO)")
+    alt_text = models.CharField(max_length=300, blank=True, verbose_name="Texto Alternativo (SEO)")
     is_main = models.BooleanField(default=False, verbose_name="¿Es la principal?")
     
     created_at = models.DateTimeField(auto_now_add=True)
