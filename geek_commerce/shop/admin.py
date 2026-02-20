@@ -111,10 +111,10 @@ class ProductImageAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Imagen y Detalles', {
-            'fields': ('image', 'alt_text'),
-            'classes': ('collapse',),
+            'fields': ('image', 'alt_text', 'image_preview'),
         }),
         ('Producto información', {
+            'classes': ('collapse',),
             'fields': (
                 'variant', 'is_main'
             ),
