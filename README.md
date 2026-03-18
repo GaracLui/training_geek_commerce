@@ -1,4 +1,4 @@
-![Estado del Proyecto](https://img.shields.io/badge/Estado-En_Desarrollo-yellow)
+![Status](https://img.shields.io/badge/status-abandoned-red)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Django](https://img.shields.io/badge/Django-6.x-green)
 
